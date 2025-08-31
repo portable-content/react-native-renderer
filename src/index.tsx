@@ -1,1 +1,3 @@
-export { MyButton } from './components/Button/Button';
+export { ResponsiveMarkup } from './components/ResponsiveMarkup/ResponsiveMarkup';
+export { ResponsiveSvg } from './components/ResponsiveSvg/ResponsiveSvg';
+export { ResponsiveImage } from './components/ResponsiveImage/ResponsiveImage';
