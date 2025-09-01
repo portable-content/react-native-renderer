@@ -1,8 +1,19 @@
 import { withBackgrounds } from '@storybook/addon-ondevice-backgrounds';
 import type { Preview } from '@storybook/react';
+import { View } from 'react-native';
+import { ScreenProvider } from '../src/providers/ScreenProvider';
 
 const preview: Preview = {
-  decorators: [withBackgrounds],
+  decorators: [
+    (Story) => (
+      <ScreenProvider>
+        <View style={{ padding: 16, flex: 1 }}>
+          <Story />
+        </View>
+      </ScreenProvider>
+    ),
+    withBackgrounds,
+  ],
 
   parameters: {
     backgrounds: {

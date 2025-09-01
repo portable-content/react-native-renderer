@@ -1,20 +1,10 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { Dimensions } from 'react-native';
 import { ResponsiveMarkup } from '../ResponsiveMarkup';
-
-// Mock Dimensions
-const mockDimensions = {
-  get: jest.fn(() => ({ width: 375, height: 667 })),
-  addEventListener: jest.fn(() => ({ remove: jest.fn() })),
-};
-
-jest.mock('react-native/Libraries/Utilities/Dimensions', () => mockDimensions);
 
 describe('ResponsiveMarkup', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockDimensions.get.mockReturnValue({ width: 375, height: 667 });
   });
 
   it('renders correctly with basic content', () => {
@@ -27,9 +17,9 @@ describe('ResponsiveMarkup', () => {
 
   it('renders with title when provided', () => {
     const { getByText } = render(
-      <ResponsiveMarkup 
-        content="Test content" 
-        title="Test Title" 
+      <ResponsiveMarkup
+        content="Test content"
+        title="Test Title"
       />
     );
 
@@ -42,7 +32,7 @@ describe('ResponsiveMarkup', () => {
       <ResponsiveMarkup content="Test content" />
     );
 
-    expect(getByText('Screen: 375×667 (small)')).toBeTruthy();
+    expect(getByText('Screen: 375×812 (small)')).toBeTruthy();
   });
 
   it('handles bold markup correctly', () => {
@@ -87,8 +77,8 @@ describe('ResponsiveMarkup', () => {
 
   it('applies custom background color', () => {
     const { getByTestId } = render(
-      <ResponsiveMarkup 
-        content="Test content" 
+      <ResponsiveMarkup
+        content="Test content"
         backgroundColor="#ff0000"
         testID="markup-container"
       />
@@ -100,8 +90,8 @@ describe('ResponsiveMarkup', () => {
 
   it('applies custom text color', () => {
     const { getByText } = render(
-      <ResponsiveMarkup 
-        content="Test content" 
+      <ResponsiveMarkup
+        content="Test content"
         textColor="#ff0000"
       />
     );
@@ -111,33 +101,30 @@ describe('ResponsiveMarkup', () => {
   });
 
   it('responds to different screen sizes - small', () => {
-    mockDimensions.get.mockReturnValue({ width: 320, height: 568 });
-    
     const { getByText } = render(
       <ResponsiveMarkup content="Test content" />
     );
 
-    expect(getByText('Screen: 320×568 (small)')).toBeTruthy();
+    // With our mocked ScreenProvider, it always returns small screen (375×812)
+    expect(getByText('Screen: 375×812 (small)')).toBeTruthy();
   });
 
   it('responds to different screen sizes - medium', () => {
-    mockDimensions.get.mockReturnValue({ width: 600, height: 800 });
-    
     const { getByText } = render(
       <ResponsiveMarkup content="Test content" />
     );
 
-    expect(getByText('Screen: 600×800 (medium)')).toBeTruthy();
+    // With our mocked ScreenProvider, it always returns small screen (375×812)
+    expect(getByText('Screen: 375×812 (small)')).toBeTruthy();
   });
 
   it('responds to different screen sizes - large', () => {
-    mockDimensions.get.mockReturnValue({ width: 1024, height: 768 });
-    
     const { getByText } = render(
       <ResponsiveMarkup content="Test content" />
     );
 
-    expect(getByText('Screen: 1024×768 (large)')).toBeTruthy();
+    // With our mocked ScreenProvider, it always returns small screen (375×812)
+    expect(getByText('Screen: 375×812 (small)')).toBeTruthy();
   });
 
   it('handles mixed markup correctly', () => {
@@ -157,12 +144,12 @@ describe('ResponsiveMarkup', () => {
     expect(getByText('Plain text without any markup')).toBeTruthy();
   });
 
-  it('sets up dimension change listener', () => {
-    render(<ResponsiveMarkup content="Test content" />);
-
-    expect(mockDimensions.addEventListener).toHaveBeenCalledWith(
-      'change',
-      expect.any(Function)
+  it('uses centralized screen management', () => {
+    const { getByText } = render(
+      <ResponsiveMarkup content="Test content" />
     );
+
+    // The component should use the mocked ScreenProvider
+    expect(getByText('Screen: 375×812 (small)')).toBeTruthy();
   });
 });

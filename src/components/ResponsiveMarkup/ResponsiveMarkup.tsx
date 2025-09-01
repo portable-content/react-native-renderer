@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Dimensions, ScrollView } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { useResponsiveScreen } from '../../providers/ScreenProvider';
+import { useResponsiveStyles } from '../../hooks/useResponsiveStyles';
 
 interface ResponsiveMarkupProps {
   /** The markup content to display */
@@ -14,11 +16,6 @@ interface ResponsiveMarkupProps {
   scrollable?: boolean;
 }
 
-interface ScreenDimensions {
-  width: number;
-  height: number;
-}
-
 export const ResponsiveMarkup = ({
   content,
   title,
@@ -26,41 +23,8 @@ export const ResponsiveMarkup = ({
   textColor = '#333333',
   scrollable = true,
 }: ResponsiveMarkupProps) => {
-  const [screenData, setScreenData] = useState<ScreenDimensions>(
-    Dimensions.get('window')
-  );
-
-  useEffect(() => {
-    const onChange = (result: { window: ScreenDimensions }) => {
-      setScreenData(result.window);
-    };
-
-    const subscription = Dimensions.addEventListener('change', onChange);
-    return () => subscription?.remove();
-  }, []);
-
-  // Determine if we're on a small, medium, or large screen
-  const getScreenSize = () => {
-    if (screenData.width < 480) return 'small';
-    if (screenData.width < 768) return 'medium';
-    return 'large';
-  };
-
-  const screenSize = getScreenSize();
-
-  // Get responsive styles based on screen size
-  const getResponsiveStyles = () => {
-    const baseStyles = {
-      fontSize: screenSize === 'small' ? 14 : screenSize === 'medium' ? 16 : 18,
-      lineHeight: screenSize === 'small' ? 20 : screenSize === 'medium' ? 24 : 28,
-      padding: screenSize === 'small' ? 12 : screenSize === 'medium' ? 16 : 20,
-      titleSize: screenSize === 'small' ? 18 : screenSize === 'medium' ? 22 : 26,
-    };
-
-    return baseStyles;
-  };
-
-  const responsiveStyles = getResponsiveStyles();
+  const { screenData, screenSize } = useResponsiveScreen();
+  const responsiveStyles = useResponsiveStyles();
 
   // Simple markup parser for basic HTML-like tags
   const parseMarkup = (markup: string) => {

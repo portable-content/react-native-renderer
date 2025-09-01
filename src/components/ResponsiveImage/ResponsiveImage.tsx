@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { View, Image, StyleSheet, Dimensions, Text } from 'react-native';
+import React, { useState } from 'react';
+import { View, Image, StyleSheet, Text } from 'react-native';
+import { useResponsiveScreen } from '../../providers/ScreenProvider';
+import { useResponsiveStyles, useResponsiveDimensions } from '../../hooks/useResponsiveStyles';
+import { useImageDimensions } from '../../hooks/useImageDimensions';
 
 interface ResponsiveImageProps {
   /** Image source - can be local require() or remote URI */
@@ -28,11 +31,6 @@ interface ResponsiveImageProps {
   accessibilityLabel?: string;
 }
 
-interface ScreenDimensions {
-  width: number;
-  height: number;
-}
-
 export const ResponsiveImage = ({
   source,
   title,
@@ -47,99 +45,24 @@ export const ResponsiveImage = ({
   showLoadingIndicator = true,
   accessibilityLabel,
 }: ResponsiveImageProps) => {
-  const [screenData, setScreenData] = useState<ScreenDimensions>(
-    Dimensions.get('window')
-  );
+  const { screenData, screenSize } = useResponsiveScreen();
+  const responsiveStyles = useResponsiveStyles({ customPadding: padding });
   const [imageError, setImageError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [imageDimensions, setImageDimensions] = useState<{width: number, height: number} | null>(null);
 
-  useEffect(() => {
-    const onChange = (result: { window: ScreenDimensions }) => {
-      setScreenData(result.window);
-    };
+  // Use the new hook to get image dimensions
+  const imageDimensions = useImageDimensions(source);
 
-    const subscription = Dimensions.addEventListener('change', onChange);
-    return () => subscription?.remove();
-  }, []);
-
-  // Get image dimensions if it's a local source
-  useEffect(() => {
-    if (source && typeof source === 'number') {
-      // Local image - get dimensions
-      const resolvedSource = Image.resolveAssetSource(source);
-      if (resolvedSource) {
-        setImageDimensions({ width: resolvedSource.width, height: resolvedSource.height });
-      }
-    } else if (source && source.uri) {
-      // Remote image - get dimensions
-      Image.getSize(
-        source.uri,
-        (width, height) => {
-          setImageDimensions({ width, height });
-        },
-        (error) => {
-          console.warn('Failed to get image dimensions:', error);
-        }
-      );
-    }
-  }, [source]);
-
-  // Determine if we're on a small, medium, or large screen
-  const getScreenSize = () => {
-    if (screenData.width < 480) return 'small';
-    if (screenData.width < 768) return 'medium';
-    return 'large';
-  };
-
-  const screenSize = getScreenSize();
-
-  // Get responsive dimensions
-  const getResponsiveDimensions = () => {
-    const availableWidth = screenData.width - (padding ? padding * 2 : 32);
-    
-    let responsiveWidth = width;
-    let responsiveHeight = height;
-
-    if (!responsiveWidth) {
-      // Calculate responsive width based on screen size
-      const widthPercentage = screenSize === 'small' ? 0.9 : screenSize === 'medium' ? 0.8 : 0.7;
-      responsiveWidth = Math.max(minWidth, availableWidth * widthPercentage);
-      
-      if (maxWidth) {
-        responsiveWidth = Math.min(responsiveWidth, maxWidth);
-      }
-    }
-
-    if (!responsiveHeight && imageDimensions && resizeMode === 'contain') {
-      // Calculate height based on aspect ratio
-      const aspectRatio = imageDimensions.width / imageDimensions.height;
-      responsiveHeight = responsiveWidth / aspectRatio;
-    } else if (!responsiveHeight) {
-      // Default height calculation
-      responsiveHeight = responsiveWidth * 0.75; // 4:3 aspect ratio default
-    }
-
-    return {
-      width: responsiveWidth,
-      height: responsiveHeight,
-    };
-  };
-
-  const dimensions = getResponsiveDimensions();
-
-  // Get responsive styles
-  const getResponsiveStyles = () => {
-    const basePadding = padding || (screenSize === 'small' ? 12 : screenSize === 'medium' ? 16 : 20);
-    const titleSize = screenSize === 'small' ? 18 : screenSize === 'medium' ? 22 : 26;
-
-    return {
-      padding: basePadding,
-      titleSize,
-    };
-  };
-
-  const responsiveStyles = getResponsiveStyles();
+  // Get responsive dimensions using the new hook
+  const { width: responsiveWidth, height: responsiveHeight } = useResponsiveDimensions({
+    width,
+    height,
+    minWidth,
+    maxWidth,
+    padding: responsiveStyles.padding,
+    preserveAspectRatio: resizeMode === 'contain' || resizeMode === 'cover',
+    originalDimensions: imageDimensions,
+  });
 
   const containerStyle = [
     styles.container,
@@ -160,8 +83,8 @@ export const ResponsiveImage = ({
   const imageStyle = [
     styles.image,
     {
-      width: dimensions.width,
-      height: dimensions.height,
+      width: responsiveWidth,
+      height: responsiveHeight,
       borderRadius,
     },
   ];
@@ -179,7 +102,7 @@ export const ResponsiveImage = ({
   const renderImage = () => {
     if (!source) {
       return (
-        <View style={[styles.placeholder, { width: dimensions.width, height: dimensions.height, borderRadius }]}>
+        <View style={[styles.placeholder, { width: responsiveWidth, height: responsiveHeight, borderRadius }]}>
           <Text style={styles.placeholderText}>No image source provided</Text>
         </View>
       );
@@ -187,7 +110,7 @@ export const ResponsiveImage = ({
 
     if (imageError) {
       return (
-        <View style={[styles.errorContainer, { width: dimensions.width, height: dimensions.height, borderRadius }]}>
+        <View style={[styles.errorContainer, { width: responsiveWidth, height: responsiveHeight, borderRadius }]}>
           <Text style={styles.errorText}>⚠️ Image Error</Text>
           <Text style={styles.errorDetails}>{imageError}</Text>
         </View>
@@ -205,7 +128,7 @@ export const ResponsiveImage = ({
           accessibilityLabel={accessibilityLabel || title}
         />
         {isLoading && showLoadingIndicator && (
-          <View style={[styles.loadingContainer, { width: dimensions.width, height: dimensions.height, borderRadius }]}>
+          <View style={[styles.loadingContainer, { width: responsiveWidth, height: responsiveHeight, borderRadius }]}>
             <Text style={styles.loadingText}>Loading...</Text>
           </View>
         )}
@@ -226,7 +149,7 @@ export const ResponsiveImage = ({
           Screen: {screenData.width}×{screenData.height} ({screenSize})
         </Text>
         <Text style={styles.infoText}>
-          Image: {Math.round(dimensions.width)}×{Math.round(dimensions.height)}
+          Image: {Math.round(responsiveWidth)}×{Math.round(responsiveHeight || 0)}
         </Text>
         {imageDimensions && (
           <Text style={styles.infoText}>
