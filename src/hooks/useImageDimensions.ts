@@ -11,7 +11,9 @@ export interface ImageDimensions {
  * @param source - Image source (local require() or remote URI)
  * @returns Image dimensions or null if not loaded yet
  */
-export const useImageDimensions = (source?: ImageSourcePropType): ImageDimensions | null => {
+export const useImageDimensions = (
+  source?: ImageSourcePropType
+): ImageDimensions | null => {
   const [dimensions, setDimensions] = useState<ImageDimensions | null>(null);
 
   useEffect(() => {
@@ -24,7 +26,10 @@ export const useImageDimensions = (source?: ImageSourcePropType): ImageDimension
       // Local image - get dimensions synchronously
       const resolvedSource = Image.resolveAssetSource(source);
       if (resolvedSource) {
-        setDimensions({ width: resolvedSource.width, height: resolvedSource.height });
+        setDimensions({
+          width: resolvedSource.width,
+          height: resolvedSource.height,
+        });
       }
     } else if (source.uri) {
       // Remote image - get dimensions asynchronously
@@ -33,7 +38,7 @@ export const useImageDimensions = (source?: ImageSourcePropType): ImageDimension
         (width, height) => {
           setDimensions({ width, height });
         },
-        (error) => {
+        error => {
           console.warn('Failed to get image dimensions:', error);
           setDimensions(null);
         }

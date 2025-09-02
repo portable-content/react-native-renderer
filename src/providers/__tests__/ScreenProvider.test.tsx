@@ -1,21 +1,46 @@
 import React from 'react';
 import { render, act } from '@testing-library/react-native';
 import { Text } from 'react-native';
+
+// TypeScript declaration for global mock
+declare global {
+  var __mockDimensions: {
+    get: jest.Mock;
+    addEventListener: jest.Mock;
+    __setDimensions: (dimensions: { width: number; height: number }) => void;
+    __clearListeners: () => void;
+  };
+}
+
+// Unmock ScreenProvider for this test file to test the real implementation
+jest.unmock('../ScreenProvider');
+
 import {
   ScreenProvider,
   useResponsiveScreen,
   getScreenSize,
   SCREEN_BREAKPOINTS,
-  type ScreenSize
+  type ScreenSize,
 } from '../ScreenProvider';
 
-// Mock Dimensions
-const mockDimensions = {
-  get: jest.fn(() => ({ width: 375, height: 812 })),
-  addEventListener: jest.fn(() => ({ remove: jest.fn() })),
-};
+// Use the global mock from jest.setup.js
+const mockDimensions = global.__mockDimensions;
 
-jest.mock('react-native/Libraries/Utilities/Dimensions', () => mockDimensions);
+// Helper to simulate dimension changes
+const simulateDimensionChange = (dimensions: { width: number; height: number }) => {
+  // Update the mock to return new dimensions
+  mockDimensions.get.mockReturnValue(dimensions);
+
+  // Simulate the event listener being called
+  const mockCalls = mockDimensions.addEventListener.mock.calls;
+  if (mockCalls.length > 0) {
+    const lastCall = mockCalls[mockCalls.length - 1];
+    const handler = lastCall[1]; // The handler function
+    if (handler) {
+      handler({ window: dimensions });
+    }
+  }
+};
 
 // Test component that uses the hook
 const TestComponent = () => {
@@ -28,13 +53,9 @@ const TestComponent = () => {
 };
 
 describe('ScreenProvider', () => {
-  let mockSubscription: { remove: jest.Mock };
-
   beforeEach(() => {
-    mockSubscription = { remove: jest.fn() };
-    mockDimensions.get.mockReturnValue({ width: 375, height: 812 });
-    mockDimensions.addEventListener.mockReturnValue(mockSubscription);
     jest.clearAllMocks();
+    mockDimensions.get.mockReturnValue({ width: 375, height: 812 });
   });
 
   afterEach(() => {
@@ -102,19 +123,18 @@ describe('ScreenProvider', () => {
         </ScreenProvider>
       );
 
+      // Get the subscription that was returned by addEventListener
+      const mockCalls = mockDimensions.addEventListener.mock.results;
+      expect(mockCalls.length).toBeGreaterThan(0);
+
+      const subscription = mockCalls[0].value;
+
       unmount();
 
-      expect(mockSubscription.remove).toHaveBeenCalled();
+      expect(subscription.remove).toHaveBeenCalled();
     });
 
     it('should update screen data when dimensions change', () => {
-      let changeHandler: (result: { window: { width: number; height: number } }) => void;
-      
-      mockDimensions.addEventListener.mockImplementation((event, handler) => {
-        changeHandler = handler;
-        return mockSubscription;
-      });
-
       const { getByTestId } = render(
         <ScreenProvider>
           <TestComponent />
@@ -126,20 +146,13 @@ describe('ScreenProvider', () => {
 
       // Simulate dimension change
       act(() => {
-        changeHandler({ window: { width: 768, height: 1024 } });
+        simulateDimensionChange({ width: 768, height: 1024 });
       });
 
       expect(getByTestId('screen-info')).toHaveTextContent('768x1024-large');
     });
 
     it('should correctly classify different screen sizes', () => {
-      let changeHandler: (result: { window: { width: number; height: number } }) => void;
-      
-      mockDimensions.addEventListener.mockImplementation((event, handler) => {
-        changeHandler = handler;
-        return mockSubscription;
-      });
-
       const { getByTestId } = render(
         <ScreenProvider>
           <TestComponent />
@@ -148,19 +161,19 @@ describe('ScreenProvider', () => {
 
       // Test small screen
       act(() => {
-        changeHandler({ window: { width: 320, height: 568 } });
+        simulateDimensionChange({ width: 320, height: 568 });
       });
       expect(getByTestId('screen-info')).toHaveTextContent('320x568-small');
 
       // Test medium screen
       act(() => {
-        changeHandler({ window: { width: 600, height: 800 } });
+        simulateDimensionChange({ width: 600, height: 800 });
       });
       expect(getByTestId('screen-info')).toHaveTextContent('600x800-medium');
 
       // Test large screen
       act(() => {
-        changeHandler({ window: { width: 1024, height: 768 } });
+        simulateDimensionChange({ width: 1024, height: 768 });
       });
       expect(getByTestId('screen-info')).toHaveTextContent('1024x768-large');
     });
@@ -169,10 +182,18 @@ describe('ScreenProvider', () => {
   describe('useResponsiveScreen', () => {
     it('should throw error when used outside of provider', () => {
       // Suppress console.error for this test
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      // Create a component that will throw during render
+      const ThrowingComponent = () => {
+        useResponsiveScreen(); // This should throw
+        return <Text>Should not render</Text>;
+      };
 
       expect(() => {
-        render(<TestComponent />);
+        render(<ThrowingComponent />);
       }).toThrow('useResponsiveScreen must be used within a ScreenProvider');
 
       consoleSpy.mockRestore();

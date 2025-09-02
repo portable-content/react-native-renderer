@@ -2858,6 +2858,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@portable-content/typescript-sdk@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "@portable-content/typescript-sdk@npm:0.3.0"
+  dependencies:
+    zod: "npm:^3.22.0"
+  peerDependencies:
+    graphql: ^16.0.0
+  peerDependenciesMeta:
+    graphql:
+      optional: true
+  checksum: 10c0/e700b1f1eea65f959239a15f4711b92453399f5a3cb8061ea004676aafb7b1360d590426b9df583702c56a9a9f679da71971f5655ef61c1f59171c22c90e4d9e
+  languageName: node
+  linkType: hard
+
 "@react-native-async-storage/async-storage@npm:2.2.0":
   version: 2.2.0
   resolution: "@react-native-async-storage/async-storage@npm:2.2.0"
@@ -9783,6 +9797,7 @@ __metadata:
     "@expo/metro-config": "npm:~0.20.0"
     "@expo/metro-runtime": "npm:~5.0.4"
     "@gorhom/bottom-sheet": "npm:^5.2.3"
+    "@portable-content/typescript-sdk": "npm:^0.3.0"
     "@react-native-async-storage/async-storage": "npm:2.2.0"
     "@react-native-community/datetimepicker": "npm:8.3.0"
     "@react-native-community/slider": "npm:4.5.6"
@@ -12025,5 +12040,12 @@ __metadata:
   version: 1.2.1
   resolution: "yocto-queue@npm:1.2.1"
   checksum: 10c0/5762caa3d0b421f4bdb7a1926b2ae2189fc6e4a14469258f183600028eb16db3e9e0306f46e8ebf5a52ff4b81a881f22637afefbef5399d6ad440824e9b27f9f
+  languageName: node
+  linkType: hard
+
+"zod@npm:^3.22.0":
+  version: 3.25.76
+  resolution: "zod@npm:3.25.76"
+  checksum: 10c0/5718ec35e3c40b600316c5b4c5e4976f7fee68151bc8f8d90ec18a469be9571f072e1bbaace10f1e85cf8892ea12d90821b200e980ab46916a6166a4260a983c
   languageName: node
   linkType: hard

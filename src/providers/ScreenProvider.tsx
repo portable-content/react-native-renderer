@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+} from 'react';
 import { Dimensions } from 'react-native';
 
 export type ScreenSize = 'small' | 'medium' | 'large';
@@ -33,25 +39,29 @@ export const ScreenProvider = ({ children }: { children: React.ReactNode }) => {
     Dimensions.get('window')
   );
 
-  const screenSize = useMemo(() => getScreenSize(screenData.width), [screenData.width]);
+  const screenSize = useMemo(
+    () => getScreenSize(screenData.width),
+    [screenData.width]
+  );
 
   useEffect(() => {
-    const subscription = Dimensions.addEventListener('change', (result) => {
+    const subscription = Dimensions.addEventListener('change', result => {
       setScreenData(result.window);
     });
 
     return () => subscription?.remove();
   }, []);
 
-  const value = useMemo(() => ({
-    screenData,
-    screenSize,
-  }), [screenData, screenSize]);
+  const value = useMemo(
+    () => ({
+      screenData,
+      screenSize,
+    }),
+    [screenData, screenSize]
+  );
 
   return (
-    <ScreenContext.Provider value={value}>
-      {children}
-    </ScreenContext.Provider>
+    <ScreenContext.Provider value={value}>{children}</ScreenContext.Provider>
   );
 };
 

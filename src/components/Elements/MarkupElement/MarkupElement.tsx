@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { useResponsiveScreen } from '../../providers/ScreenProvider';
-import { useResponsiveStyles } from '../../hooks/useResponsiveStyles';
+import { useResponsiveScreen } from '../../../providers/ScreenProvider';
+import { useResponsiveStyles } from '../../../hooks/useResponsiveStyles';
 
-interface ResponsiveMarkupProps {
+export interface MarkupElementProps {
   /** The markup content to display */
   content: string;
   /** Optional title for the markup */
@@ -16,13 +16,13 @@ interface ResponsiveMarkupProps {
   scrollable?: boolean;
 }
 
-export const ResponsiveMarkup = ({
+export const MarkupElement = ({
   content,
   title,
   backgroundColor = '#ffffff',
   textColor = '#333333',
   scrollable = true,
-}: ResponsiveMarkupProps) => {
+}: MarkupElementProps) => {
   const { screenData, screenSize } = useResponsiveScreen();
   const responsiveStyles = useResponsiveStyles();
 
@@ -36,7 +36,7 @@ export const ResponsiveMarkup = ({
 
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
-      
+
       if (part.startsWith('<') && part.endsWith('>')) {
         // Handle tags
         const tag = part.toLowerCase();
@@ -59,11 +59,11 @@ export const ResponsiveMarkup = ({
           <Text
             key={key++}
             style={[
-              styles.contentText,
+              styles.text,
               {
-                fontSize: responsiveStyles.fontSize,
-                lineHeight: responsiveStyles.lineHeight,
                 color: textColor,
+                fontSize: responsiveStyles.fontSize,
+                lineHeight: responsiveStyles.fontSize * 1.4,
               },
               currentStyle,
             ]}
@@ -89,8 +89,8 @@ export const ResponsiveMarkup = ({
     styles.title,
     {
       fontSize: responsiveStyles.titleSize,
-      color: textColor,
       marginBottom: responsiveStyles.padding / 2,
+      color: textColor,
     },
   ];
 
@@ -118,7 +118,6 @@ export const ResponsiveMarkup = ({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: {
@@ -129,25 +128,27 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  scrollContainer: {
-    flex: 1,
-  },
-  staticContainer: {
-    flex: 1,
-  },
-  contentContainer: {
-    flexGrow: 1,
-  },
   title: {
     fontWeight: 'bold',
     textAlign: 'center',
+    marginBottom: 8,
   },
-  contentText: {
-    flexWrap: 'wrap',
+  scrollContainer: {
+    maxHeight: 400, // Limit height for scrollable content
+  },
+  staticContainer: {
+    // No height limit for static content
+  },
+  contentContainer: {
+    paddingVertical: 8,
+  },
+  text: {
+    textAlign: 'left',
+    marginVertical: 2,
   },
   screenInfo: {
-    marginTop: 20,
-    paddingTop: 10,
+    marginTop: 16,
+    paddingTop: 8,
     borderTopWidth: 1,
     borderTopColor: '#e0e0e0',
     alignItems: 'center',
@@ -155,6 +156,6 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize: 12,
     opacity: 0.7,
-    fontStyle: 'italic',
+    textAlign: 'center',
   },
 });

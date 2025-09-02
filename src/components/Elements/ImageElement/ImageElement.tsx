@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { View, Image, StyleSheet, Text } from 'react-native';
-import { useResponsiveScreen } from '../../providers/ScreenProvider';
-import { useResponsiveStyles, useResponsiveDimensions } from '../../hooks/useResponsiveStyles';
-import { useImageDimensions } from '../../hooks/useImageDimensions';
+import { useResponsiveScreen } from '../../../providers/ScreenProvider';
+import {
+  useResponsiveStyles,
+  useResponsiveDimensions,
+} from '../../../hooks/useResponsiveStyles';
+import { useImageDimensions } from '../../../hooks/useImageDimensions';
 
-interface ResponsiveImageProps {
+export interface ImageElementProps {
   /** Image source - can be local require() or remote URI */
   source: any;
   /** Optional title for the image */
@@ -31,7 +34,7 @@ interface ResponsiveImageProps {
   accessibilityLabel?: string;
 }
 
-export const ResponsiveImage = ({
+export const ImageElement = ({
   source,
   title,
   backgroundColor = '#ffffff',
@@ -44,7 +47,7 @@ export const ResponsiveImage = ({
   borderRadius = 0,
   showLoadingIndicator = true,
   accessibilityLabel,
-}: ResponsiveImageProps) => {
+}: ImageElementProps) => {
   const { screenData, screenSize } = useResponsiveScreen();
   const responsiveStyles = useResponsiveStyles({ customPadding: padding });
   const [imageError, setImageError] = useState<string | null>(null);
@@ -54,15 +57,16 @@ export const ResponsiveImage = ({
   const imageDimensions = useImageDimensions(source);
 
   // Get responsive dimensions using the new hook
-  const { width: responsiveWidth, height: responsiveHeight } = useResponsiveDimensions({
-    width,
-    height,
-    minWidth,
-    maxWidth,
-    padding: responsiveStyles.padding,
-    preserveAspectRatio: resizeMode === 'contain' || resizeMode === 'cover',
-    originalDimensions: imageDimensions,
-  });
+  const { width: responsiveWidth, height: responsiveHeight } =
+    useResponsiveDimensions({
+      width,
+      height,
+      minWidth,
+      maxWidth,
+      padding: responsiveStyles.padding,
+      preserveAspectRatio: resizeMode === 'contain' || resizeMode === 'cover',
+      originalDimensions: imageDimensions,
+    });
 
   const containerStyle = [
     styles.container,
@@ -96,13 +100,20 @@ export const ResponsiveImage = ({
 
   const handleImageError = (error: any) => {
     setIsLoading(false);
-    setImageError(`Image failed to load: ${error.nativeEvent?.error || 'Unknown error'}`);
+    setImageError(
+      `Failed to load image: ${error.nativeEvent?.error || 'Unknown error'}`
+    );
   };
 
   const renderImage = () => {
     if (!source) {
       return (
-        <View style={[styles.placeholder, { width: responsiveWidth, height: responsiveHeight, borderRadius }]}>
+        <View
+          style={[
+            styles.placeholder,
+            { width: responsiveWidth, height: responsiveHeight },
+          ]}
+        >
           <Text style={styles.placeholderText}>No image source provided</Text>
         </View>
       );
@@ -110,7 +121,12 @@ export const ResponsiveImage = ({
 
     if (imageError) {
       return (
-        <View style={[styles.errorContainer, { width: responsiveWidth, height: responsiveHeight, borderRadius }]}>
+        <View
+          style={[
+            styles.errorContainer,
+            { width: responsiveWidth, height: responsiveHeight },
+          ]}
+        >
           <Text style={styles.errorText}>⚠️ Image Error</Text>
           <Text style={styles.errorDetails}>{imageError}</Text>
         </View>
@@ -118,44 +134,41 @@ export const ResponsiveImage = ({
     }
 
     return (
-      <View style={styles.imageContainer}>
+      <>
         <Image
           source={source}
           style={imageStyle}
           resizeMode={resizeMode}
           onLoad={handleImageLoad}
           onError={handleImageError}
-          accessibilityLabel={accessibilityLabel || title}
+          accessibilityLabel={accessibilityLabel}
         />
         {isLoading && showLoadingIndicator && (
-          <View style={[styles.loadingContainer, { width: responsiveWidth, height: responsiveHeight, borderRadius }]}>
+          <View
+            style={[
+              styles.loadingContainer,
+              { width: responsiveWidth, height: responsiveHeight },
+            ]}
+          >
             <Text style={styles.loadingText}>Loading...</Text>
           </View>
         )}
-      </View>
+      </>
     );
   };
 
   return (
     <View style={containerStyle}>
       {title && <Text style={titleStyle}>{title}</Text>}
-      
-      <View style={styles.contentContainer}>
-        {renderImage()}
-      </View>
-
+      {renderImage()}
       <View style={styles.screenInfo}>
         <Text style={styles.infoText}>
           Screen: {screenData.width}×{screenData.height} ({screenSize})
         </Text>
         <Text style={styles.infoText}>
-          Image: {Math.round(responsiveWidth)}×{Math.round(responsiveHeight || 0)}
+          Image: {Math.round(responsiveWidth)}×
+          {responsiveHeight ? Math.round(responsiveHeight) : 'auto'}
         </Text>
-        {imageDimensions && (
-          <Text style={styles.infoText}>
-            Original: {imageDimensions.width}×{imageDimensions.height}
-          </Text>
-        )}
       </View>
     </View>
   );
@@ -163,7 +176,8 @@ export const ResponsiveImage = ({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: {
@@ -177,76 +191,62 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: 'bold',
     textAlign: 'center',
-    color: '#333333',
-  },
-  contentContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-  },
-  imageContainer: {
-    position: 'relative',
+    color: '#333',
   },
   image: {
-    backgroundColor: 'transparent',
+    marginVertical: 8,
   },
   placeholder: {
     backgroundColor: '#f0f0f0',
-    borderWidth: 2,
-    borderColor: '#ddd',
-    borderStyle: 'dashed',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 8,
+    borderRadius: 4,
   },
   placeholderText: {
     color: '#666',
     fontSize: 14,
     textAlign: 'center',
-    fontStyle: 'italic',
   },
   errorContainer: {
     backgroundColor: '#ffe6e6',
-    borderWidth: 1,
-    borderColor: '#ff9999',
-    alignItems: 'center',
     justifyContent: 'center',
-    padding: 16,
+    alignItems: 'center',
+    marginVertical: 8,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#ffcccc',
   },
   errorText: {
     color: '#cc0000',
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   errorDetails: {
     color: '#cc0000',
     fontSize: 12,
     textAlign: 'center',
+    paddingHorizontal: 8,
   },
   loadingContainer: {
     position: 'absolute',
-    top: 0,
-    left: 0,
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 4,
   },
   loadingText: {
     color: '#666',
-    fontSize: 16,
-    fontStyle: 'italic',
+    fontSize: 14,
   },
   screenInfo: {
-    marginTop: 20,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+    marginTop: 8,
     alignItems: 'center',
   },
   infoText: {
     fontSize: 12,
     color: '#666',
-    opacity: 0.7,
-    fontStyle: 'italic',
+    textAlign: 'center',
   },
 });

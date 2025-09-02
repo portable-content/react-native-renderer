@@ -1,5 +1,8 @@
 import { useMemo } from 'react';
-import { useResponsiveScreen, type ScreenSize } from '../providers/ScreenProvider';
+import {
+  useResponsiveScreen,
+  type ScreenSize,
+} from '../providers/ScreenProvider';
 
 export interface ResponsiveStyleValues {
   padding: number;
@@ -46,25 +49,29 @@ export interface UseResponsiveStylesOptions {
  * @param options - Optional overrides for specific style values
  * @returns Responsive style values for the current screen size
  */
-export const useResponsiveStyles = (options: UseResponsiveStylesOptions = {}): ResponsiveStyleValues => {
+export const useResponsiveStyles = (
+  options: UseResponsiveStylesOptions = {}
+): ResponsiveStyleValues => {
   const { screenSize } = useResponsiveScreen();
-  const {
-    customPadding,
-    customTitleSize,
-    customFontSize,
-    customLineHeight,
-  } = options;
+  const { customPadding, customTitleSize, customFontSize, customLineHeight } =
+    options;
 
   return useMemo(() => {
     const baseStyles = RESPONSIVE_STYLES[screenSize];
-    
+
     return {
       padding: customPadding ?? baseStyles.padding,
       titleSize: customTitleSize ?? baseStyles.titleSize,
       fontSize: customFontSize ?? baseStyles.fontSize,
       lineHeight: customLineHeight ?? baseStyles.lineHeight,
     };
-  }, [screenSize, customPadding, customTitleSize, customFontSize, customLineHeight]);
+  }, [
+    screenSize,
+    customPadding,
+    customTitleSize,
+    customFontSize,
+    customLineHeight,
+  ]);
 };
 
 /**
@@ -94,7 +101,9 @@ export interface ResponsiveDimensions {
   height: number | undefined;
 }
 
-export const useResponsiveDimensions = (options: UseResponsiveDimensionsOptions = {}): ResponsiveDimensions => {
+export const useResponsiveDimensions = (
+  options: UseResponsiveDimensionsOptions = {}
+): ResponsiveDimensions => {
   const { screenData, screenSize } = useResponsiveScreen();
   const {
     width,
@@ -109,16 +118,17 @@ export const useResponsiveDimensions = (options: UseResponsiveDimensionsOptions 
   return useMemo(() => {
     const responsiveStyles = RESPONSIVE_STYLES[screenSize];
     const effectivePadding = padding ?? responsiveStyles.padding;
-    const availableWidth = screenData.width - (effectivePadding * 2);
-    
+    const availableWidth = screenData.width - effectivePadding * 2;
+
     let responsiveWidth = width;
     let responsiveHeight = height;
 
     if (!responsiveWidth) {
       // Calculate responsive width based on screen size
-      const widthPercentage = screenSize === 'small' ? 0.9 : screenSize === 'medium' ? 0.8 : 0.7;
+      const widthPercentage =
+        screenSize === 'small' ? 0.9 : screenSize === 'medium' ? 0.8 : 0.7;
       responsiveWidth = Math.max(minWidth, availableWidth * widthPercentage);
-      
+
       if (maxWidth) {
         responsiveWidth = Math.min(responsiveWidth, maxWidth);
       }

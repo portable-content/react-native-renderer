@@ -5,7 +5,7 @@ import { ScreenProvider } from '../src/providers/ScreenProvider';
 
 const preview: Preview = {
   decorators: [
-    (Story) => (
+    Story => (
       <ScreenProvider>
         <View style={{ padding: 16, flex: 1 }}>
           <Story />
