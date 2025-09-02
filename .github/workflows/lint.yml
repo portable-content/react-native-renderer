@@ -63,5 +63,3 @@ jobs:
 
       - name: Run Prettier check
         run: ${{ steps.detect-pm.outputs.runner }} format:check
-
-
