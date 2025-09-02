@@ -41,6 +41,7 @@ This template comes pre-configured with:
    ```
 
 3. **Commit your lock file:**
+
    ```sh
    git add package-lock.json  # or yarn.lock / pnpm-lock.yaml
    git commit -m "Add lock file for reproducible builds"
