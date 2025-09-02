@@ -209,7 +209,6 @@ export const MultipleMarkupExample = () => {
               content={markup1State.content}
               backgroundColor={markup1State.backgroundColor}
               textColor={markup1State.textColor}
-              fontSize={16}
             />
           </View>
 
@@ -220,7 +219,6 @@ export const MultipleMarkupExample = () => {
               content={markup2State.content}
               backgroundColor={markup2State.backgroundColor}
               textColor={markup2State.textColor}
-              fontSize={16}
             />
           </View>
 
@@ -231,7 +229,6 @@ export const MultipleMarkupExample = () => {
               content={markup3State.content}
               backgroundColor={markup3State.backgroundColor}
               textColor={markup3State.textColor}
-              fontSize={16}
             />
           </View>
         </PortableContent>

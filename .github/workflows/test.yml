@@ -79,5 +79,5 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
-          slug: zestic/react-native-expo-component-template
+          slug: portable-content/react-native-renderer
           fail_ci_if_error: true

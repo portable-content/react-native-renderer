@@ -65,7 +65,7 @@ export const ImageElement = ({
       maxWidth,
       padding: responsiveStyles.padding,
       preserveAspectRatio: resizeMode === 'contain' || resizeMode === 'cover',
-      originalDimensions: imageDimensions,
+      originalDimensions: imageDimensions || undefined,
     });
 
   const containerStyle = [

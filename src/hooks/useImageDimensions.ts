@@ -31,7 +31,7 @@ export const useImageDimensions = (
           height: resolvedSource.height,
         });
       }
-    } else if (source.uri) {
+    } else if (typeof source === 'object' && !Array.isArray(source) && source.uri) {
       // Remote image - get dimensions asynchronously
       Image.getSize(
         source.uri,
