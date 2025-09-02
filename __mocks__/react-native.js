@@ -13,7 +13,7 @@ const mockDimensions = {
     return subscription;
   }),
   // Helper function to simulate dimension changes in tests
-  __setDimensions: (dimensions) => {
+  __setDimensions: dimensions => {
     mockDimensionsData = dimensions;
     mockDimensionsListeners.forEach(({ handler }) => {
       handler({ window: dimensions });

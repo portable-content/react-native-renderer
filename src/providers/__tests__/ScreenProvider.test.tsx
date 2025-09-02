@@ -27,7 +27,10 @@ import {
 const mockDimensions = global.__mockDimensions;
 
 // Helper to simulate dimension changes
-const simulateDimensionChange = (dimensions: { width: number; height: number }) => {
+const simulateDimensionChange = (dimensions: {
+  width: number;
+  height: number;
+}) => {
   // Update the mock to return new dimensions
   mockDimensions.get.mockReturnValue(dimensions);
 
