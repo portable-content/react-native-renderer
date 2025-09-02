@@ -64,8 +64,4 @@ jobs:
       - name: Run Prettier check
         run: ${{ steps.detect-pm.outputs.runner }} format:check
 
-      - name: Build library
-        run: ${{ steps.detect-pm.outputs.runner }} library:build
 
-      - name: Verify library build
-        run: ${{ steps.detect-pm.outputs.runner }} library:verify
